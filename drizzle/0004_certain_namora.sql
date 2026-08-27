@@ -1,0 +1,3 @@
+CREATE UNIQUE INDEX "content_plans_ai_run_unique_idx" ON "content_plans" USING btree ("ai_run_id") WHERE "content_plans"."ai_run_id" is not null;--> statement-breakpoint
+CREATE UNIQUE INDEX "positioning_reports_ai_run_unique_idx" ON "positioning_reports" USING btree ("ai_run_id") WHERE "positioning_reports"."ai_run_id" is not null;--> statement-breakpoint
+CREATE UNIQUE INDEX "review_reports_ai_run_unique_idx" ON "review_reports" USING btree ("ai_run_id") WHERE "review_reports"."ai_run_id" is not null;

@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: creator_compass
+      POSTGRES_USER: creator_compass
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes:
+      - creator_compass_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U creator_compass -d creator_compass"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migrate:
+    build: .
+    profiles: ["ops"]
+    command: ["pnpm", "db:migrate"]
+    env_file: .env.production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      EXPECTED_MIGRATION_COUNT: "19"
+      LOCAL_STORAGE_PATH: /data/private
+      LOCAL_SNAPSHOT_PATH: /data/snapshots
+      CREATOR_COMPASS_MASTER_KEY_PATH: /data/secrets/master.key
+    volumes:
+      - creator_compass_local:/data
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+volumes:
+  creator_compass_postgres:
+  creator_compass_local:

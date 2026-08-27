@@ -1,0 +1,5 @@
+ALTER TABLE "creator_profile_versions" ADD CONSTRAINT "creator_profile_versions_parent_fk" FOREIGN KEY ("creator_profile_id","parent_version") REFERENCES "public"."creator_profile_versions"("creator_profile_id","version") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "creator_profile_versions" ALTER CONSTRAINT "creator_profile_versions_parent_fk" DEFERRABLE INITIALLY DEFERRED;--> statement-breakpoint
+ALTER TABLE "positioning_reports" ADD CONSTRAINT "positioning_reports_parent_fk" FOREIGN KEY ("report_id","parent_version") REFERENCES "public"."positioning_reports"("report_id","version") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "positioning_reports" ALTER CONSTRAINT "positioning_reports_parent_fk" DEFERRABLE INITIALLY DEFERRED;--> statement-breakpoint
+ALTER TABLE "positioning_reports" ADD CONSTRAINT "positioning_reports_parent_before_child" CHECK ("positioning_reports"."parent_version" is null or "positioning_reports"."parent_version" < "positioning_reports"."version");

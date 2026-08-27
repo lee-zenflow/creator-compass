@@ -1,0 +1,81 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: creator_compass_ci_test
+          POSTGRES_USER: creator_compass
+          POSTGRES_PASSWORD: ci-postgres-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U creator_compass -d creator_compass_ci_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgresql://creator_compass:ci-postgres-only@localhost:5432/creator_compass_ci_test
+      TEST_DATABASE_URL: postgresql://creator_compass:ci-postgres-only@localhost:5432/creator_compass_ci_test
+      E2E_DATABASE_URL: postgresql://creator_compass:ci-postgres-only@localhost:5432/creator_compass_ci_test
+      APP_URL: http://localhost:3101
+      E2E_BASE_URL: http://localhost:3101
+      E2E_SERVER_MODE: production
+      E2E_REUSE_EXISTING_SERVER: "0"
+      LOCAL_RUNTIME_MODE: "1"
+      AUTH_SECRET: ci-only-auth-secret-32-characters-minimum
+      AI_ADAPTER: test
+      AI_LOG_HMAC_KEY: ci-only-ai-log-hmac-key-32-characters
+      LOCAL_STORAGE_PATH: /tmp/creator-compass-ci/private
+      LOCAL_SNAPSHOT_PATH: /tmp/creator-compass-ci/snapshots
+      CREATOR_COMPASS_MASTER_KEY_PATH: /tmp/creator-compass-ci/secrets/master.key
+      EXPECTED_MIGRATION_COUNT: "19"
+      WORKER_HEARTBEAT_MAX_AGE_MS: "45000"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.16.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Reset and migrate isolated test database
+        run: |
+          pnpm exec tsx scripts/reset-e2e-database.ts
+          pnpm db:migrate
+          pnpm db:seed
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm build:worker
+      - name: Install dedicated Playwright browser
+        run: pnpm exec playwright install --with-deps msedge
+      - name: Rebuild clean E2E database
+        run: |
+          pnpm exec tsx scripts/reset-e2e-database.ts
+          pnpm db:migrate
+          pnpm db:seed
+      - name: Run Playwright against its dedicated production service
+        run: |
+          touch .env.local
+          pnpm e2e

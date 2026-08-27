@@ -1,0 +1,15 @@
+{
+  "name": "Creator Compass",
+  "short_name": "Compass",
+  "description": "面向个人创作者的定位、创作与复盘决策辅助工具。",
+  "lang": "zh-CN",
+  "start_url": "/workspace",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#397e83",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
