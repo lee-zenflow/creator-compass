@@ -1,6 +1,8 @@
-# Creator Compass
+# Creator Compass｜创作者罗盘
 
-Creator Compass 是面向个人创作者的内容决策辅助工具，把「0-1 IP 定位 → 事前创作 → 发布后数据复盘 → 下一轮任务」连接成一个紧凑的移动端工作流。
+本地优先的 AI 创作者工作台，连接 IP 定位、内容策划、数据复盘与下一步行动。
+
+*A local-first AI workspace connecting creator positioning, content planning, performance review, and next actions.*
 
 当前版本包含：单机 Owner 初始化、一次性恢复码、定位访谈、三候选定位、创作方案、浏览器本地 OCR、复盘报告、可执行任务中心、素材使用记录、可归档的版本化报告、加密备份与安全恢复出厂、PWA 离线草稿、DeepSeek 结构化生成、离线中文向量 RAG 和本机知识治理后台。它不包含平台授权、自动抓取网页、短信、邮件、支付，也不会把开发示例当成真实案例。
 

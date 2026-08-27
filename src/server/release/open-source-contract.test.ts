@@ -88,6 +88,9 @@ describe("public repository contract", () => {
 
   test("documents honest product, AI, legal and deployment boundaries", () => {
     const readme = read("README.md");
+    expect(readme.startsWith("# Creator Compass｜创作者罗盘\n")).toBe(true);
+    expect(readme).toContain("本地优先的 AI 创作者工作台，连接 IP 定位、内容策划、数据复盘与下一步行动。");
+    expect(readme).toContain("A local-first AI workspace connecting creator positioning, content planning, performance review, and next actions.");
     expect(readme).toContain("AI_ADAPTER=test");
     expect(readme).toContain("单机 Owner");
     expect(readme).toContain("deepseek-v4-flash");
